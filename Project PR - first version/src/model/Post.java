@@ -2,26 +2,33 @@ package model;
 
 import java.util.Date;
 
-public class Post implements Analyticable {
+public class Post {
     private String content;
     private Date date;
     private int expectedLikes;
     private int currentLikes;
     private int previousLikes;
+    private int comments;
     private int currentFollowers;
     private int previousFollowers;
+    private String campaignName;
+    private Influencer influencer;
 
-    public Post(String content, Date date, int expectedLikes, int currentLikes, int previousLikes, int currentFollowers, int previousFollowers) {
+    // Constructor
+    public Post(String content, Date date, int expectedLikes, int currentLikes, int previousLikes, int comments,
+                int currentFollowers, int previousFollowers, String campaignName) {
         this.content = content;
         this.date = date;
         this.expectedLikes = expectedLikes;
         this.currentLikes = currentLikes;
         this.previousLikes = previousLikes;
+        this.comments = comments;
         this.currentFollowers = currentFollowers;
         this.previousFollowers = previousFollowers;
+        this.campaignName = campaignName;
     }
 
-    // Getters
+    // Getters and setters for all fields
     public String getContent() {
         return content;
     }
@@ -42,6 +49,10 @@ public class Post implements Analyticable {
         return previousLikes;
     }
 
+    public int getComments() {
+        return comments;
+    }
+
     public int getCurrentFollowers() {
         return currentFollowers;
     }
@@ -50,25 +61,15 @@ public class Post implements Analyticable {
         return previousFollowers;
     }
 
-    @Override
-    public void analyze() {
-        // Placeholder for the analytics method
-        System.out.println("Analyzing engagement for post: " + content);
+    public String getCampaignName() {
+        return campaignName;
     }
 
-    @Override
-    public double calculateEngagementGrowth(int currentLikes, int previousLikes) {
-        if (previousLikes == 0) {
-            return 100.0;
-        }
-        return ((double) (currentLikes - previousLikes) / previousLikes) * 100;
+    public Influencer getInfluencer() {
+        return influencer;
     }
 
-    @Override
-    public double analyzeFollowerGrowth(int currentFollowers, int previousFollowers) {
-        if (previousFollowers == 0) {
-            return 100.0;
-        }
-        return ((double) (currentFollowers - previousFollowers) / previousFollowers) * 100;
+    public void setInfluencer(Influencer influencer) {
+        this.influencer = influencer;
     }
 }

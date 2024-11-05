@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Arrays;
+
 public class Campaign {
     private Influencer influencer;
     private Post[] posts;
@@ -8,6 +10,7 @@ public class Campaign {
         this.influencer = influencer;
         this.posts = posts;
     }
+
     public Influencer getInfluencer() {
         return influencer;
     }
@@ -15,5 +18,12 @@ public class Campaign {
     public Post[] getPosts() {
         return posts;
     }
-    // Getters and toString() method
+
+    @Override
+    public String toString() {
+        return "Campaign{" +
+                "influencer=" + influencer +
+                ", posts=" + Arrays.toString(posts) +
+                '}';
+    }
 }
