@@ -1,5 +1,6 @@
 package com.Midterm.utils;
 
+import com.Midterm.model.CustomException.InvalidNumberException;
 import java.util.Scanner;
 
 public class InputDevice {
@@ -13,12 +14,14 @@ public class InputDevice {
         return scanner.nextLine();
     }
 
-    public int readInt() {
+    public int readInt() throws InvalidNumberException {
         while (!scanner.hasNextInt()) {
-            System.out.println("Invalid input. Please enter an integer:");
-            scanner.next();  // Discard invalid input
+            scanner.next(); // Discard invalid input
+            throw new InvalidNumberException("Invalid input. Please enter an integer:");
         }
-        return scanner.nextInt();
+        int value = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character left by nextInt()
+        return value;
     }
 
     public String[] getArguments() {

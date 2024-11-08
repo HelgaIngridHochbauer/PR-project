@@ -11,8 +11,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-
+import com.Midterm.model.CustomException.InvalidNumberException;
 import java.util.Date;
+import java.util.InputMismatchException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,36 +46,13 @@ public class Application {
     }
 
 
-    private void initialMenu() throws IOException {
-        outputDevice.displayMessage("Welcome to the Application!");
-        outputDevice.displayMessage("Do you want to continue the previous session or start a new one?");
-        outputDevice.displayMessage("1. Continue previous session");
-        outputDevice.displayMessage("2. Start a new session (WARNING: All data will be lost)");
-
-        int choice;
-        do {
-            choice = inputDevice.readInt();
-        } while (choice != 1 && choice != 2);
-
-        if (choice == 1) {
-            loadData();
-        } else {
-            newSession();
-        }
-    }
 
     private void newSession() {
-        try {
-            // Delete all data from JSON files at the start of a new session
-            StorageUtils.emptyJsonFiles();
-            // Reinitialize the data structures
-            influencers.clear();
-            campaigns.clear();
-            outputDevice.displayMessage("New session started. All data has been cleared.");
-        } catch (IOException e) {
-            outputDevice.displayMessage("An error occurred while starting a new session: " + e.getMessage());
-        }
+        influencers.clear();
+        campaigns.clear();
+        outputDevice.displayMessage("New session started. All previous data cleared.");
     }
+
     private void handleError(IOException e) {
         outputDevice.displayMessage("An error occurred: " + e.getMessage());
     }
@@ -83,28 +61,52 @@ public class Application {
         for (String arg : args) {
             switch (arg.toLowerCase()) {
                 case "createpost":
-                    createPost();
+                    try {
+                        createPost();
+                    } catch (InvalidNumberException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "viewcalendar":
-                    viewCalendar();
+                    try {
+                        viewCalendar();
+                    } catch (InvalidNumberException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "calculatefollowergrowth":
                     calculateFollowerGrowth();
                     break;
                 case "compareengagement":
-                    compareEngagement();
+                    try {
+                        compareEngagement();
+                    } catch (InvalidNumberException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "comparefollowergrowth":
-                    compareFollowerGrowth();
+                    try {
+                        compareFollowerGrowth();
+                    } catch (InvalidNumberException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "addinfluencer":
-                    addInfluencer();
+                    try {
+                        addInfluencer();
+                    } catch (InvalidNumberException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "listinfluencers":
                     listInfluencers();
                     break;
                 case "setsortcriterion":
-                    setSortCriterion();
+                    try {
+                        setSortCriterion();
+                    } catch (InvalidNumberException e) {
+                        throw new RuntimeException(e);
+                    }
                     break;
                 case "groupinfluencersbyplatform":
                     groupInfluencersByPlatform();
@@ -125,93 +127,132 @@ public class Application {
     }
 
     public void run() throws IOException {
-        initialMenu();
-        boolean running = true;
-        while (running) {
-            outputDevice.displayMessage("Choose an option:\n" +
-                    "0. Dashboard\n" +
-                    "1. Create Post\n" +
-                    "2. View Calendar\n" +
-                    "3. Calculate Follower Growth\n" +
-                    "4. Compare Engagement\n" +
-                    "5. Compare Follower Growth\n" +
-                    "6. Add Influencer\n" +
-                    "7. Sort Influencers\n" +
-                    "8. Set Sort Criterion\n" +
-                    "9. Group Influencers by Platform\n" +
-                    "10. Group Influencers by Celebrity Level\n" +
-                    "11. Group Posts by Campaign\n" +
-                    "12. Exit");
-            int choice = inputDevice.readInt();
-            inputDevice.readLine();  // Clear buffer
+        try {
+            initialMenu();
+            boolean running = true;
+            while (running) {
+                outputDevice.displayMessage("Choose an option:\n" +
+                        "0. Dashboard\n" +
+                        "1. Create Post\n" +
+                        "2. View Calendar\n" +
+                        "3. Calculate Follower Growth\n" +
+                        "4. Compare Engagement\n" +
+                        "5. Compare Follower Growth\n" +
+                        "6. Add Influencer\n" +
+                        "7. Sort Influencers\n" +
+                        "8. Set Sort Criterion\n" +
+                        "9. Group Influencers by Platform\n" +
+                        "10. Group Influencers by Celebrity Level\n" +
+                        "11. Group Posts by Campaign\n" +
+                        "12. Exit");
 
-            switch (choice) {
-                case 0:
-                    interactiveDashboard();
-                    break;
-                case 1:
-                    createPost();
-                    break;
-                case 2:
-                    viewCalendar();
-                    break;
-                case 3:
-                    calculateFollowerGrowth();
-                    break;
-                case 4:
-                    compareEngagement();
-                    break;
-                case 5:
-                    compareFollowerGrowth();
-                    break;
-                case 6:
-                    addInfluencer();
-                    break;
-                case 7:
-                    listInfluencers();
-                    break;
-                case 8:
-                    setSortCriterion();
-                    break;
-                case 9:
-                    groupAndSortInfluencers();
-                    break;
-                case 10:
-                    groupInfluencersByCelebrityLevel();
-                    break;
-                case 11:
-                    groupPostsByCampaign();
-                    break;
-                case 12:
-                    saveData();
-                    System.exit(0);
-                    break;
-                default:
-                    outputDevice.displayMessage("Invalid choice. Please try again.");
+                boolean validInput = false;
+                while (!validInput) {
+                    try {
+                        int choice = inputDevice.readInt();
+                        validInput = true;  // valid input received
+
+
+                        switch (choice) {
+                            case 0:
+                                interactiveDashboard();
+                                break;
+                            case 1:
+                                createPost();
+                                break;
+                            case 2:
+                                viewCalendar();
+                                break;
+                            case 3:
+                                calculateFollowerGrowth();
+                                break;
+                            case 4:
+                                compareEngagement();
+                                break;
+                            case 5:
+                                compareFollowerGrowth();
+                                break;
+                            case 6:
+                                addInfluencer();
+                                break;
+                            case 7:
+                                listInfluencers();
+                                break;
+                            case 8:
+                                setSortCriterion();
+                                break;
+                            case 9:
+                                groupAndSortInfluencers();
+                                break;
+                            case 10:
+                                groupInfluencersByCelebrityLevel();
+                                break;
+                            case 11:
+                                groupPostsByCampaign();
+                                break;
+                            case 12:
+                                saveData();
+                                System.exit(0);
+                                break;
+                            default:
+                                outputDevice.displayMessage("Invalid choice. Please try again.");
+                        }
+                        inputDevice.readLine();
+                    } catch (InvalidNumberException e) {
+                        outputDevice.displayMessage("An invalid number was entered: " + e.getMessage());
+                    }
+                }
             }
+            saveData();
+        } catch (IOException e) {
+            outputDevice.displayMessage("An error occurred: " + e.getMessage());
         }
-        saveData();
     }
 
+    private void initialMenu() throws IOException {
+        outputDevice.displayMessage("Welcome to the Application!");
+        outputDevice.displayMessage("Do you want to continue the previous session or start a new one?");
+        outputDevice.displayMessage("1. Continue previous session");
+        outputDevice.displayMessage("2. Start a new session (WARNING: All data will be lost)");
 
+        int choice = -1;  // Initialize to invalid choice value
+        while (choice != 1 && choice != 2) {
+            try {
+                choice = inputDevice.readInt();
+                inputDevice.readLine(); // Clear buffer
+                if (choice != 1 && choice != 2) {
+                    outputDevice.displayMessage("Invalid choice. Please enter 1 or 2.");
+                }
+            } catch (InvalidNumberException e) {
+                outputDevice.displayMessage(e.getMessage()); // Prompt user again
+            }
+        }
+
+        if (choice == 1) {
+            loadData();
+        } else {
+            newSession();
+        }
+    }
 
     private void saveData() {
         try {
             StorageUtils.saveData(influencers, campaigns);
             outputDevice.displayMessage("Data saved successfully.");
-        } catch (Exception e) {
-            outputDevice.displayMessage("An error occurred while saving data: " + e.getMessage());
+        } catch (IOException e) {
+            outputDevice.displayMessage("Error saving data: " + e.getMessage());
+            e.printStackTrace(); // For debugging purposes
         }
     }
 
+    List<Post> posts = new ArrayList<>();
+
     private void loadData() {
         try {
-            // Load data into the lists and map
-            StorageUtils.loadData(influencers, campaigns);
-
-            outputDevice.displayMessage("Data loaded successfully.");
-        } catch (Exception e) {
+            StorageUtils.loadData(influencers, posts, campaigns);
+        } catch (IOException e) {
             outputDevice.displayMessage("An error occurred while loading data: " + e.getMessage());
+            e.printStackTrace();  // For debugging purposes
         }
     }
 
@@ -235,7 +276,7 @@ public class Application {
         }
     }
 
-    private void viewCalendar() {
+    private void viewCalendar() throws InvalidNumberException {
         outputDevice.displayMessage("Enter month and year (e.g., 10 2024 for October 2024): ");
         int month = inputDevice.readInt();
         int year = inputDevice.readInt();
@@ -252,18 +293,22 @@ public class Application {
     }
 
     private void calculateFollowerGrowth() {
-        outputDevice.displayMessage("Enter current followers: ");
-        currentFollowers = inputDevice.readInt();
-        inputDevice.readLine();  // Clear buffer
+        try {
+            outputDevice.displayMessage("Enter current followers: ");
+            currentFollowers = inputDevice.readInt();
+            inputDevice.readLine();  // Clear buffer
 
-        outputDevice.displayMessage("Enter previous followers: ");
-        previousFollowers = inputDevice.readInt();
+            outputDevice.displayMessage("Enter previous followers: ");
+            previousFollowers = inputDevice.readInt();
 
-        double growth = growthAnalytics.analyzeFollowerGrowth(currentFollowers, previousFollowers);
-        outputDevice.displayMessage("Follower Growth: " + growth + "%");
+            double growth = growthAnalytics.analyzeFollowerGrowth(currentFollowers, previousFollowers);
+            outputDevice.displayMessage("Follower Growth: " + growth + "%");
+        } catch (InvalidNumberException e) {
+            outputDevice.displayMessage("An invalid number was entered: " + e.getMessage());
+        }
     }
 
-    private void compareEngagement() {
+    private void compareEngagement() throws InvalidNumberException {
         outputDevice.displayMessage("Enter current likes for GA1: ");
         int currentLikes1 = inputDevice.readInt();
         inputDevice.readLine();  // Clear buffer
@@ -294,7 +339,7 @@ public class Application {
         }
     }
 
-    private void compareFollowerGrowth() {
+    private void compareFollowerGrowth() throws InvalidNumberException {
         outputDevice.displayMessage("Enter current followers for GA1: ");
         int currentFollowers1 = inputDevice.readInt();
         inputDevice.readLine();  // Clear buffer
@@ -346,7 +391,7 @@ public class Application {
         }
     }
 
-    private void setSortCriterion() {
+    private void setSortCriterion() throws InvalidNumberException {
         outputDevice.displayMessage("Choose a sort criterion:\n" +
                 "1. Sort by Name\n" +
                 "2. Sort Descendingly by Number of Followers\n" +
@@ -469,13 +514,12 @@ public class Application {
         }
         outputDevice.displayMessage("Influencer not found.");
     }
-    public void interactiveDashboard() throws IOException {
-        Scanner scanner = new Scanner(System.in);
 
+    public void interactiveDashboard() throws IOException, InvalidNumberException {
         // Display Influencers
         displayInfluencers();
         outputDevice.displayMessage("Enter the name of the influencer you wish to manage:");
-        String influencerName = scanner.nextLine();
+        String influencerName = inputDevice.readLine();
         Influencer selectedInfluencer = null;
 
         // Find selected influencer
@@ -500,8 +544,15 @@ public class Application {
             outputDevice.displayMessage("3. Edit Influencer Details");
             outputDevice.displayMessage("4. View Influencer Details");
             outputDevice.displayMessage("5. Exit Dashboard");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume newline
+
+            int choice = -1;
+            while (choice == -1) {
+                try {
+                    choice = inputDevice.readInt(); // Try reading integer
+                } catch (InvalidNumberException e) {
+                    outputDevice.displayMessage(e.getMessage()); // Display error message
+                }
+            }
 
             switch (choice) {
                 case 1:
@@ -515,8 +566,14 @@ public class Application {
                     break;
                 case 3:
                     outputDevice.displayMessage("Enter new number of followers:");
-                    int newFollowers = scanner.nextInt();
-                    scanner.nextLine(); // Clear buffer
+                    int newFollowers = -1;
+                    while (newFollowers == -1) {
+                        try {
+                            newFollowers = inputDevice.readInt(); // Try reading integer
+                        } catch (InvalidNumberException e) {
+                            outputDevice.displayMessage(e.getMessage()); // Display error message
+                        }
+                    }
                     editInfluencerDetails(selectedInfluencer.getName(), newFollowers);
                     break;
                 case 4:
@@ -529,6 +586,8 @@ public class Application {
             }
         }
     }
+
+
     private void viewInfluencerDetails(Influencer influencer) {
         outputDevice.displayMessage("Influencer Details:");
         outputDevice.displayMessage("====================");
@@ -667,7 +726,7 @@ public class Application {
         }
     }
 
-    private void editPostForInfluencer(Influencer influencer, String postId) throws IOException {
+    private void editPostForInfluencer(Influencer influencer, String postId) throws IOException, InvalidNumberException {
         boolean postFound = false;
 
         for (Map.Entry<String, List<Post>> entry : campaigns.entrySet()) {
@@ -737,7 +796,7 @@ public class Application {
             return true;
         }
 
-    private void createPost() {
+    private void createPost() throws CustomException.InvalidNumberException{
         if (influencers.isEmpty()) {
             outputDevice.displayMessage("No influencers available. Please add an influencer first.");
             return;
@@ -802,9 +861,15 @@ public class Application {
         outputDevice.displayMessage("Post scheduled successfully.");
         saveData();
     }
+    private int parseNumber(String input, String field) throws CustomException.InvalidNumberException {
+        try {
+            return Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            throw new CustomException.InvalidNumberException("Invalid input for " + field + ": " + input);
+        }
+    }
 
-
-    private void addInfluencer() {
+    private void addInfluencer() throws InvalidNumberException {
             outputDevice.displayMessage("Enter the name of the influencer: ");
             String name = inputDevice.readLine();
 

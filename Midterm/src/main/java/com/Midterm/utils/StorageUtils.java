@@ -40,15 +40,15 @@ public class StorageUtils {
         }
     }
 
-    public static void loadPosts(Map<String, List<Post>> campaigns) throws IOException {
+    public static void loadPosts(List<Post> posts) throws IOException {
         File postsFile = new File("posts.json");
         if (postsFile.exists()) {
             List<Post> loadedPosts = Arrays.asList(objectMapper.readValue(postsFile, Post[].class));
-            for (Post post : loadedPosts) {
-                campaigns.computeIfAbsent(post.getCampaignName(), k -> new ArrayList<>()).add(post);
-            }
+            posts.clear(); // Clear the existing data
+            posts.addAll(loadedPosts);
         }
     }
+
 
     public static Set<String> loadCampaign() {
         try {
@@ -70,13 +70,29 @@ public class StorageUtils {
     }
 
     // Combining load methods
-    public static void loadData(List<Influencer> influencers, Map<String, List<Post>> campaigns) throws IOException {
+
+    public static void loadData(List<Influencer> influencers, List<Post> posts, Map<String, List<Post>> campaigns) throws IOException {
+        influencers.clear(); // Clear existing influencers data
+        posts.clear();       // Clear existing posts data
+        campaigns.clear();   // Clear existing campaigns data
+
         loadInfluencers(influencers);
-        loadPosts(campaigns); // Load posts into the campaigns map
-        campaigns.keySet().addAll(loadCampaign()); // Ensure campaign names are loaded
+        loadPosts(posts);    // Load posts into the posts list
+
+        // Rebuild the campaigns map from the posts list
+        for (Post post : posts) {
+            campaigns.computeIfAbsent(post.getCampaignName(), k -> new ArrayList<>()).add(post);
+        }
+
+        // Properly merge loaded campaign names into the campaigns map
+        Set<String> loadedCampaignNames = loadCampaign();
+        for (String campaignName : loadedCampaignNames) {
+            campaigns.putIfAbsent(campaignName, new ArrayList<>());
+        }
     }
 
     // Utility to clear storage files
+
     public static void emptyJsonFiles() throws IOException {
         new File("influencers.json").delete();
         new File("posts.json").delete();
